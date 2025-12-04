@@ -1,11 +1,9 @@
-"use client";
-import { Field, Formik } from "formik";
 
-
+import RegisterForm from "./components/registerForm";
 
 
 export default function Register() {
-  const initialValues={};
+
 
 
 
@@ -35,92 +33,7 @@ export default function Register() {
         <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
           
           
-          <Formik
-          
-          initialValues={{ email: '', password: '' }}
-       validate={values => {
-         const errors = {};
-         if (!values.email) {
-           errors.email = 'Required';
-         } else if (
-           !/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(values.email)
-         ) {
-           errors.email = 'Invalid email address';
-         }
-         return errors;
-       }}
-       onSubmit={(values, { setSubmitting }) => {
-         setTimeout(() => {
-           alert(JSON.stringify(values, null, 2));
-           setSubmitting(false);
-         }, 400);
-       }}
-          
-          
-          >
-             <form  className="space-y-6">
-             <div>
-              <label htmlFor="name" className="block text-sm/6 font-medium text-gray-900">
-                Name
-              </label>
-              <div className="mt-2">
-                <Field
-                  id="name"
-                  name="name"
-                  type="text"
-                  
-                  autoComplete="name"
-                  className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
-                />
-              </div>
-            </div>
-
-            <div>
-              <label htmlFor="email" className="block text-sm/6 font-medium text-gray-900">
-                Email address
-              </label>
-              <div className="mt-2">
-                <Field
-                  id="email"
-                  name="email"
-                  type="email"
-                  
-                  autoComplete="email"
-                  className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
-                />
-              </div>
-            </div>
-
-            <div>
-              <div className="flex items-center justify-between">
-                <label htmlFor="password" className="block text-sm/6 font-medium text-gray-900">
-                  Password
-                </label>
-               
-              </div>
-              <div className="mt-2">
-                <Field
-                  id="password"
-                  name="password"
-                  type="password"
-                  
-                  autoComplete="current-password"
-                  className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
-                />
-              </div>
-            </div>
-
-            <div>
-              <button
-                type="submit"
-                className="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm/6 font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-              >
-                Sign in
-              </button>
-            </div>
-          </form>
-
-          </Formik>
+            <RegisterForm name="kamal"/>
          
           <p className="mt-10 text-center text-sm/6 text-gray-500">
             Not a member?{' '}
