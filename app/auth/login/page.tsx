@@ -1,8 +1,6 @@
+import LoginForm from "./components/loginForm";
 
-import RegisterForm from "./components/registerForm";
-
-
-export default function Register() {
+export default function Login() {
 
 
 
@@ -26,14 +24,14 @@ export default function Register() {
             className="mx-auto h-10 w-auto"
           />
           <h2 className="mt-10 text-center text-2xl/9 font-bold tracking-tight text-gray-900">
-            Sign in to your account
+            Login
           </h2>
         </div>
 
         <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
           
           
-            <RegisterForm/>
+            <LoginForm/>
          
         
         </div>
