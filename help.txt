@@ -1,0 +1,8 @@
+>npx create-next-app@latest
+
+npm install @reduxjs/toolkit
+npm install react-redux
+
+مرحله بعد کانفیگ و آماده سازی ریداکس
+
+npm install tailwindcss @tailwindcss/postcss postcss
