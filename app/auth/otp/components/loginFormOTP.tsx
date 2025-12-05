@@ -45,7 +45,7 @@ const router=useRouter();
           console.log(res.data)
           if (res.status === 200) {
            
-            const token = res.data.token;
+            const token = res?.data?.token;
 
             await fetch("/api/auth/store-token", {
               method: "POST",

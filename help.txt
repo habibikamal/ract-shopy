@@ -14,4 +14,5 @@ npm install yup
 
 npm i axios
 
- npm i react-cookie
+npm install universal-cookie
+npm install @types/universal-cookie
