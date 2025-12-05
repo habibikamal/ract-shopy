@@ -3,24 +3,30 @@
 import { Formik, Form } from "formik";
 import * as yup from "yup";
 import Input from "@/app/shared/components/input";
-import { InterfaceLoginFormValues } from "@/app/contracts/auth/modelAuth";
+import { InterfaceLoginFormMobileValues } from "@/app/contracts/auth/modelAuth";
 import callApi from "@/app/helpers/callApi";
 import ValidationErrors from "@/app/exceptions/validationErroe";
+import { useRouter } from "next/navigation";
+
+import { useAppDispatch } from "@/app/hooks";
+import { updatePhoneVerifyToken } from "@/app/store/auth";
+
+
+
 
 const validationSchema = yup.object().shape({
-  email: yup.string().email("Invalid email").required("Email is required"),
-  password: yup
+  phone: yup
     .string()
-    .required("Password is required")
-    .min(6, "Minimum 6 chars"),
+    .required("شماره موبایل الزامی است")
+    .matches(/^09\d{9}$/, "شماره موبایل معتبر نیست (مانند 09121234567)"),
 });
 
-export default function LoginForm() {
-  const initialValues: InterfaceLoginFormValues = {
-    email: "",
-    password: "",
+export default function LoginFormMobile() {
+  const initialValues: InterfaceLoginFormMobileValues = {
+    phone: "",
   };
-
+  const router=useRouter();
+  const dispatch = useAppDispatch();
   return (
     <Formik
       initialValues={initialValues}
@@ -34,14 +40,19 @@ export default function LoginForm() {
             },
           });
 
+          console.log(res.data)
           if (res.status === 200) {
             const token = res.data.token;
+            //localStorage.setItem('phone-verify-token',res.data.token)
 
-            await fetch("/api/auth/store-token", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ token }),
-            });
+               // ذخیره در Redux Toolkit
+            dispatch(updatePhoneVerifyToken(token));
+          
+
+
+           
+            router.push("/auth/otp");
+            
 
             // TODO: redirect
           }
@@ -91,8 +102,8 @@ export default function LoginForm() {
             </div>
           )}
 
-          <Input name="email" type="email" label="Email Address" />
-          <Input name="password" type="password" label="Password" />
+          <Input name="phone" type="text" label="Mobile Number" />
+          
 
           <button
             type="submit"

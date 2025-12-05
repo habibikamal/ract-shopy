@@ -3,38 +3,48 @@
 import { Formik, Form } from "formik";
 import * as yup from "yup";
 import Input from "@/app/shared/components/input";
-import { InterfaceLoginFormValues } from "@/app/contracts/auth/modelAuth";
+import {InterfaceLoginFormOTPValues } from "@/app/contracts/auth/modelAuth";
 import callApi from "@/app/helpers/callApi";
 import ValidationErrors from "@/app/exceptions/validationErroe";
+import { useRouter } from "next/navigation";
+import { useAppSelector } from "@/app/hooks";
+import { selectPhoneVerifyToken, updatePhoneVerifyToken } from "@/app/store/auth";
+import { useDispatch } from "react-redux";
+
+
 
 const validationSchema = yup.object().shape({
-  email: yup.string().email("Invalid email").required("Email is required"),
-  password: yup
+  code: yup
     .string()
-    .required("Password is required")
-    .min(6, "Minimum 6 chars"),
+    .required("کد تأیید الزامی است")
+    .matches(/^\d{6}$/, "کد تأیید باید ۶ رقم باشد"),
 });
 
-export default function LoginForm() {
-  const initialValues: InterfaceLoginFormValues = {
-    email: "",
-    password: "",
-  };
 
+export default function LoginFormOTP() {
+  const token = useAppSelector(selectPhoneVerifyToken);
+  const dispatch=useDispatch();
+  const initialValues: InterfaceLoginFormOTPValues = {
+    code: "",
+    token: token ?? ""
+  };
+const router=useRouter();
   return (
     <Formik
       initialValues={initialValues}
       validationSchema={validationSchema}
       onSubmit={async (values, { setFieldError, setStatus }) => {
         try {
-          const res = await callApi().post("auth/login", values, {
+          const res = await callApi().post("auth/login/verify-phone", values, {
             headers: {
               "Content-Type": "application/json",
               Accept: "application/json",
             },
           });
 
+          console.log(res.data)
           if (res.status === 200) {
+           
             const token = res.data.token;
 
             await fetch("/api/auth/store-token", {
@@ -42,8 +52,11 @@ export default function LoginForm() {
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({ token }),
             });
+            //کاربر ریدایرکت شود به صفحه اصلی
+            await router.push("/");
+            //dispatch(updatePhoneVerifyToken(undefined));
 
-            // TODO: redirect
+      
           }
         } catch (error: any) {
           console.log("ERROR:", error);
@@ -91,14 +104,14 @@ export default function LoginForm() {
             </div>
           )}
 
-          <Input name="email" type="email" label="Email Address" />
-          <Input name="password" type="password" label="Password" />
+          <Input name="code" type="text" label="OTP" />
+           {/* <Input name="token" type="text" label="OTP" /> */}
 
           <button
             type="submit"
             className="w-full bg-indigo-600 text-white py-2 rounded-md font-semibold"
           >
-            Login
+            Verify
           </button>
         </Form>
       )}

@@ -1,5 +1,6 @@
 // اصلاح شده callApi.ts
 import axios from "axios";
+import ValidationErrors from "../exceptions/validationErroe";
 
 const callApi = () => {
     const axiosInstance = axios.create({
@@ -17,9 +18,18 @@ const callApi = () => {
 
     axiosInstance.interceptors.response.use(
         res => {
+            
             return res;
         },
-        error => Promise.reject(error)
+        error => {
+            const res=error?.response;
+            if(res){
+                if(res.status===422){
+                    throw new ValidationErrors(res.data.errors)
+                }
+            }
+            Promise.reject(error)
+        }
     );
 
     // این خط اضافه شد - باید axiosInstance را برگرداند

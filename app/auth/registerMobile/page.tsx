@@ -1,9 +1,9 @@
 
-import RegisterFormM from "../registerMobile/components/registerFormM";
+import RegisterFormM from "./components/registerFormM";
 
 
 
-export default function Register() {
+export default function RegisterM() {
 
 
 
