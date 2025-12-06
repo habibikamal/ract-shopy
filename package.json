@@ -19,6 +19,7 @@
     "react-cookie": "^8.0.1",
     "react-dom": "19.2.0",
     "react-redux": "^9.2.0",
+    "swr": "^2.3.7",
     "universal-cookie": "^8.0.1",
     "yup": "^1.7.1"
   },

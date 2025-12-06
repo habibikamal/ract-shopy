@@ -10,6 +10,7 @@ import { useRouter } from "next/navigation";
 import { useAppSelector } from "@/app/hooks";
 import { selectPhoneVerifyToken, updatePhoneVerifyToken } from "@/app/store/auth";
 import { useDispatch } from "react-redux";
+import { storeToken } from "@/app/hooks/authToken";
 
 
 
@@ -46,14 +47,15 @@ const router=useRouter();
           if (res.status === 200) {
            
             const token = res?.data?.token;
-
-            await fetch("/api/auth/store-token", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ token }),
-            });
+            console.log('otp',res?.data.user);
+            await storeToken(res.data.user.token);
+            // await fetch("/api/auth/store-token", {
+            //   method: "POST",
+            //   headers: { "Content-Type": "application/json" },
+            //   body: JSON.stringify({ token }),
+            // });
             //کاربر ریدایرکت شود به صفحه اصلی
-            await router.push("/");
+            await router.push("/panel");
             //dispatch(updatePhoneVerifyToken(undefined));
 
       
