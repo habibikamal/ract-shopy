@@ -5,12 +5,13 @@ import ValidationErrors from "../exceptions/validationErroe";
 const callApi = () => {
     const axiosInstance = axios.create({
         baseURL: "http://localhost:5000/api",
-        withCredentials: true,   // ← ← خیلی مهم
+       
         
     });
 
     axiosInstance.interceptors.request.use(
         (config) => {
+            config.withCredentials = true;  // ← ← خیلی مهم
             return config;
         },
         error => { throw error; }

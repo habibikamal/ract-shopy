@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import useAuth from "../hooks/useAuth";
 import { useRouter } from "next/navigation";
+import UserInfo from "./componrnts/usrInfo";
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
@@ -14,19 +15,19 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   //      setLoading(false)
   //   }, 3000);
   // }, []) 
-
+useEffect(() => {
+    if (!loading && error) {
+      router.push("/auth/loginMobile");
+    }
+  }, [loading, error]);
 
   if (loading) {
     return <div>Loading...</div>;
   }
-  
-  if(error) {
-          // show error
-          router.push('/auth/loginMobile')
-          return <></>;
-      }
 
-    console.log(user);
+  if (error) {
+    return null; // تا redirect انجام شود
+  }
 
 
   return (
@@ -34,6 +35,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
     <div className="dashboard-wrapper flex">
       <aside className="sidebar w-64 bg-black text-white">Sidebar Menu</aside>
+      <UserInfo/>
       <main className="flex-1 p-6 bg-gray-50">{children}</main>
     </div>
   );
