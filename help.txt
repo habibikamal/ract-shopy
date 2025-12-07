@@ -16,3 +16,5 @@ npm i axios
 
 npm install universal-cookie
 npm install @types/universal-cookie
+
+npm install @heroicons/react
