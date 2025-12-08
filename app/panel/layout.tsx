@@ -6,13 +6,6 @@ import useAuth from "../hooks/useAuth";
 import {
   Bars3Icon,
   XMarkIcon,
-  HomeIcon,
-  UserIcon,
-  Cog6ToothIcon,
-  ChartBarIcon,
-  ChevronDownIcon,
-  ArrowLeftOnRectangleIcon,
-  GlobeAltIcon,
 } from "@heroicons/react/24/outline";
 import SidebarContent from "./componrnts/sidebarContent";
 import ProfileDropdown from "./componrnts/profileDropdown";
@@ -24,33 +17,34 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-
   useEffect(() => {
     if (!loading && error) {
       router.push("/auth/loginMobile");
     }
   }, [loading, error]);
 
-  if (loading) return <div>Loading...</div>;
+  if (loading) return <div>در حال بارگذاری...</div>;
   if (error) return null;
 
   return (
-    <div className="flex h-screen bg-gray-100">
+    <div className="flex h-screen bg-gray-100" dir="rtl">
 
       {/* ---------------- Sidebar (Mobile) ---------------- */}
       <div
         className={`fixed inset-0 z-40 flex lg:hidden transition-all duration-300 ${
-          sidebarOpen ? "translate-x-0" : "-translate-x-full"
+          sidebarOpen ? "translate-x-0" : "translate-x-full"
         }`}
       >
+        {/* Background */}
         <div
           className="fixed inset-0 bg-black/50"
           onClick={() => setSidebarOpen(false)}
         ></div>
 
+        {/* Sidebar Panel */}
         <div className="relative z-50 w-64 bg-white shadow-xl p-4">
           <button
-            className="absolute right-4 top-4"
+            className="absolute left-4 top-4"
             onClick={() => setSidebarOpen(false)}
           >
             <XMarkIcon className="h-6 w-6" />
@@ -70,30 +64,31 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
         {/* ---------------- Top Navbar ---------------- */}
         <div className="flex items-center justify-between bg-white px-6 py-3 shadow relative">
-          
+
           {/* Mobile Sidebar Toggle */}
           <button className="lg:hidden" onClick={() => setSidebarOpen(true)}>
             <Bars3Icon className="h-6 w-6" />
           </button>
 
           {/* Title */}
-          <h1 className="text-xl font-semibold">Dashboard</h1>
+          <h1 className="text-xl font-semibold">داشبورد</h1>
 
-          {/* Right Section */}
+          {/* Right Section (actually left in RTL) */}
           <div className="flex items-center gap-6">
 
             {/* Language Dropdown */}
             <LanguageDropdown />
 
             {/* Profile Dropdown */}
-           <ProfileDropdown user={user} />
+            <ProfileDropdown user={user} />
           </div>
         </div>
 
         {/* Page Content */}
-        <main className="flex-1 overflow-y-auto p-6">{children}</main>
+        <main className="flex-1 overflow-y-auto p-6">
+          {children}
+        </main>
       </div>
     </div>
   );
 }
-
