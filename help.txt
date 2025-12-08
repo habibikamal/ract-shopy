@@ -18,3 +18,6 @@ npm install universal-cookie
 npm install @types/universal-cookie
 
 npm install @heroicons/react
+
+npm i @material-tailwind/react
+https://www.material-tailwind.com/docs/react/mega-menu
