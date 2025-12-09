@@ -2,27 +2,21 @@
 
 import React, { useEffect, useMemo, useState } from "react";
 import AddProductModal from "../componrnts/addProductModal";
-import { Router } from "next/router";
 import { useSearchParams } from "next/navigation";
+import useSWR from "swr";
+import { GetProducts } from "@/app/services/products";
+import Loading, { FullScreenLoader } from "@/app/shared/components/Loading";
 
-// ---------------- Models ----------------
 type ProductStatus = "active" | "inactive" | "draft";
 
 interface Product {
   id: number;
-  name: string;
+  title: string;
   price: number;
-  description: string;
+  body: string;
   status: ProductStatus;
-  createdAt: string;
+  created_at: string;
 }
-
-// ---------------- Dummy Data ----------------
-const initialProducts: Product[] = [
-  { id: 1, name: "آیفون 15 پرو", price: 120000000, description: "جدیدترین گوشی اپل", status: "active", createdAt: "1403/06/15" },
-  { id: 2, name: "سامسونگ S24", price: 98000000, description: "پرچمدار سامسونگ", status: "active", createdAt: "1403/05/21" },
-  { id: 3, name: "هدفون سونی XM5", price: 18500000, description: "降噪 عالی", status: "inactive", createdAt: "1403/02/20" },
-];
 
 const statusColors: Record<ProductStatus, string> = {
   active: "bg-emerald-100 text-emerald-700",
@@ -30,62 +24,39 @@ const statusColors: Record<ProductStatus, string> = {
   draft: "bg-amber-100 text-amber-700",
 };
 
-// ---------------- Component ----------------
 export default function ProductsTable() {
-  const [products, setProducts] = useState<Product[]>(initialProducts);
 
-  // ---------------- Add Product Modal ----------------
   const [openModal, setOpenModal] = useState(false);
 
-  const [newProduct, setNewProduct] = useState({
-    name: "",
-    price: "",
-    description: "",
-  });
-
-  const handleAddProduct = () => {
-    if (!newProduct.name || !newProduct.price || !newProduct.description) {
-      alert("تمام فیلدها را وارد کنید");
-      return;
-    }
-
-    const product: Product = {
-      id: products.length + 1,
-      name: newProduct.name,
-      price: Number(newProduct.price),
-      description: newProduct.description,
-      status: "active",
-      createdAt: new Date().toLocaleDateString("fa-IR"),
-    };
-
-    setProducts([product, ...products]);
-    setOpenModal(false);
-
-    // reset form
-    setNewProduct({ name: "", price: "", description: "" });
-  };
-
-   // اگر کاربر ?create-product زد → مودال باز شود
-   const searchParams = useSearchParams();
+  // اگر ?create-product وجود داشت → مودال باز شود
+  const searchParams = useSearchParams();
   useEffect(() => {
     if (searchParams.has("create-product")) {
       setOpenModal(true);
     }
   }, [searchParams]);
 
+  // ---------------- Load From API ----------------
+  const [page, setPage] = useState(1);
+  const { data: productData, error } = useSWR(
+    { url: '/panel/products', page },
+    GetProducts
+  );
+console.log('productData:', productData);
+  const loadingProducts = !productData && !error;
+
+  const products: Product[] = productData?? [];
 
   // ---------------- Search ----------------
   const [search, setSearch] = useState("");
 
   const filtered = useMemo(() => {
     return products.filter((p) =>
-      p.name.toLowerCase().includes(search.toLowerCase().trim())
+      p.title.toLowerCase().includes(search.toLowerCase().trim())
     );
   }, [products, search]);
 
   return (
-
-  
     <div className="min-h-screen bg-zinc-100 p-6" dir="rtl">
       <div className="max-w-6xl mx-auto bg-white rounded-xl shadow border border-zinc-200">
 
@@ -97,8 +68,6 @@ export default function ProductsTable() {
           </div>
 
           <div className="flex gap-3 mt-4 md:mt-0">
-
-            {/* Search */}
             <input
               type="text"
               placeholder="جستجو..."
@@ -107,7 +76,6 @@ export default function ProductsTable() {
               onChange={(e) => setSearch(e.target.value)}
             />
 
-            {/* Add Product Button */}
             <button
               onClick={() => setOpenModal(true)}
               className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 text-sm"
@@ -117,42 +85,55 @@ export default function ProductsTable() {
           </div>
         </div>
 
-        {/* Table */}
-        <table className="w-full text-sm">
-          <thead>
-            <tr className="bg-zinc-100 border-b">
-              <th className="px-4 py-3 text-right">نام محصول</th>
-              <th className="px-4 py-3 text-right">قیمت</th>
-              <th className="px-4 py-3 text-right">درباره محصول</th>
-              <th className="px-4 py-3 text-right">وضعیت</th>
-              <th className="px-4 py-3 text-right">تاریخ ایجاد</th>
-            </tr>
-          </thead>
+        {/* Loading State */}
+       {loadingProducts && (
+        <div className="py-10">
+          <Loading size={45} color="#6366F1" />
+        </div>
+)}
 
-          <tbody>
-            {filtered.map((p) => (
-              <tr key={p.id} className="border-b">
-                <td className="px-4 py-3 font-medium">{p.name}</td>
-                <td className="px-4 py-3">{p.price.toLocaleString("fa-IR")}</td>
-                <td className="px-4 py-3 text-zinc-600">{p.description}</td>
-                <td className="px-4 py-3">
-                  <span className={`px-3 py-1 rounded-full text-xs ${statusColors[p.status]}`}>
-                    {p.status === "active" ? "فعال" : "غیرفعال"}
-                  </span>
-                </td>
-                <td className="px-4 py-3">{p.createdAt}</td>
+            {/* {loadingProducts && <FullScreenLoader />} */}
+
+
+
+        {/* Table */}
+        {!loadingProducts && (
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="bg-zinc-100 border-b">
+                <th className="px-4 py-3 text-right">نام محصول</th>
+                <th className="px-4 py-3 text-right">قیمت</th>
+                <th className="px-4 py-3 text-right">توضیحات</th>
+                <th className="px-4 py-3 text-right">وضعیت</th>
+                <th className="px-4 py-3 text-right">تاریخ ایجاد</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+
+            <tbody>
+              {filtered.map((p) => (
+                <tr key={p.id} className="border-b">
+                  <td className="px-4 py-3 font-medium">{p.title}</td>
+                  <td className="px-4 py-3">{p.price.toLocaleString("fa-IR")}</td>
+                  <td className="px-4 py-3 text-zinc-600">{p.body}</td>
+                  <td className="px-4 py-3">
+                    <span className={`px-3 py-1 rounded-full text-xs ${statusColors[p.status]}`}>
+                      {p.status === "active" ? "فعال" : "غیرفعال"}
+                    </span>
+                  </td>
+                  <td className="px-4 py-3">{p.created_at}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+
       </div>
 
-      {/* ================= Modal Add Product ================= */}
-     {/* مودال */}
+      {/* Modal */}
       <AddProductModal
         open={openModal}
         onClose={() => setOpenModal(false)}
-        onSubmit={handleAddProduct}
+        onSubmit={() => {}}
       />
     </div>
   );

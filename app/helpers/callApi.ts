@@ -19,6 +19,7 @@ const callApi = () => {
 
     axiosInstance.interceptors.response.use(
         res => {
+            console.log('API RESPONSE:*******************************', res);
             return res;
         },
         error => {

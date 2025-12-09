@@ -1,8 +1,8 @@
 
 export interface CreateProductInterface {
-  name: string;
+  title: string;
   price: number;
-  description: string;
+  body: string;
   category: string;   
   status: string;     
 }

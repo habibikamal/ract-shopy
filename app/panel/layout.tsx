@@ -3,6 +3,9 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import useAuth from "../hooks/useAuth";
 
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 import {
   Bars3Icon,
   XMarkIcon,
@@ -23,7 +26,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     }
   }, [loading, error]);
 
-  if (loading) return <div>در حال بارگذاری...</div>;
+  // if (loading) return <div>در حال بارگذاری...</div>;
   if (error) return null;
 
   return (
@@ -87,6 +90,15 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         {/* Page Content */}
         <main className="flex-1 overflow-y-auto p-6">
           {children}
+
+             {/* Toast Container */}
+        <ToastContainer
+          position="top-right"
+          autoClose={3000}
+          rtl={true}
+          theme="colored"
+        />
+
         </main>
       </div>
     </div>
