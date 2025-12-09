@@ -1,61 +1,27 @@
 'use client';
-// ProductsTable.tsx
-import React, { useMemo, useState } from "react";
 
+import React, { useEffect, useMemo, useState } from "react";
+import AddProductModal from "../componrnts/addProductModal";
+import { Router } from "next/router";
+import { useSearchParams } from "next/navigation";
+
+// ---------------- Models ----------------
 type ProductStatus = "active" | "inactive" | "draft";
 
 interface Product {
   id: number;
   name: string;
-  category: string;
   price: number;
-  stock: number;
+  description: string;
   status: ProductStatus;
   createdAt: string;
 }
 
-interface ProductsTableProps {
-  products?: Product[];          // اگر دادی از این استفاده می‌کنه
-  onAddProduct?: () => void;     // هندلر دکمه افزودن محصول
-}
-
-const mockData: Product[] = [
-  {
-    id: 1,
-    name: "iPhone 15 Pro",
-    category: "Mobile",
-    price: 1200,
-    stock: 5,
-    status: "active",
-    createdAt: "2024-09-01",
-  },
-  {
-    id: 2,
-    name: "Samsung Galaxy S24",
-    category: "Mobile",
-    price: 999,
-    stock: 12,
-    status: "active",
-    createdAt: "2024-08-15",
-  },
-  {
-    id: 3,
-    name: "AirPods Pro 2",
-    category: "Accessories",
-    price: 249,
-    stock: 30,
-    status: "inactive",
-    createdAt: "2024-07-10",
-  },
-  {
-    id: 4,
-    name: "MacBook Air M3",
-    category: "Laptop",
-    price: 1599,
-    stock: 3,
-    status: "draft",
-    createdAt: "2024-06-02",
-  },
+// ---------------- Dummy Data ----------------
+const initialProducts: Product[] = [
+  { id: 1, name: "آیفون 15 پرو", price: 120000000, description: "جدیدترین گوشی اپل", status: "active", createdAt: "1403/06/15" },
+  { id: 2, name: "سامسونگ S24", price: 98000000, description: "پرچمدار سامسونگ", status: "active", createdAt: "1403/05/21" },
+  { id: 3, name: "هدفون سونی XM5", price: 18500000, description: "降噪 عالی", status: "inactive", createdAt: "1403/02/20" },
 ];
 
 const statusColors: Record<ProductStatus, string> = {
@@ -63,165 +29,131 @@ const statusColors: Record<ProductStatus, string> = {
   inactive: "bg-gray-100 text-gray-600",
   draft: "bg-amber-100 text-amber-700",
 };
-export default function Home({ products,  onAddProduct }: ProductsTableProps) {
+
+// ---------------- Component ----------------
+export default function ProductsTable() {
+  const [products, setProducts] = useState<Product[]>(initialProducts);
+
+  // ---------------- Add Product Modal ----------------
+  const [openModal, setOpenModal] = useState(false);
+
+  const [newProduct, setNewProduct] = useState({
+    name: "",
+    price: "",
+    description: "",
+  });
+
+  const handleAddProduct = () => {
+    if (!newProduct.name || !newProduct.price || !newProduct.description) {
+      alert("تمام فیلدها را وارد کنید");
+      return;
+    }
+
+    const product: Product = {
+      id: products.length + 1,
+      name: newProduct.name,
+      price: Number(newProduct.price),
+      description: newProduct.description,
+      status: "active",
+      createdAt: new Date().toLocaleDateString("fa-IR"),
+    };
+
+    setProducts([product, ...products]);
+    setOpenModal(false);
+
+    // reset form
+    setNewProduct({ name: "", price: "", description: "" });
+  };
+
+   // اگر کاربر ?create-product زد → مودال باز شود
+   const searchParams = useSearchParams();
+  useEffect(() => {
+    if (searchParams.has("create-product")) {
+      setOpenModal(true);
+    }
+  }, [searchParams]);
+
+
+  // ---------------- Search ----------------
   const [search, setSearch] = useState("");
 
-  const data = products ?? mockData;
-
-  const filtered = useMemo(
-    () =>
-      data.filter((p) =>
-        p.name.toLowerCase().includes(search.toLowerCase().trim())
-      ),
-    [data, search]
-  );
+  const filtered = useMemo(() => {
+    return products.filter((p) =>
+      p.name.toLowerCase().includes(search.toLowerCase().trim())
+    );
+  }, [products, search]);
 
   return (
 
-      <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 flex items-start justify-center p-6">
-      <div className="w-full max-w-6xl bg-white dark:bg-zinc-900 rounded-2xl shadow border border-zinc-200/70 dark:border-zinc-800">
+  
+    <div className="min-h-screen bg-zinc-100 p-6" dir="rtl">
+      <div className="max-w-6xl mx-auto bg-white rounded-xl shadow border border-zinc-200">
+
         {/* Header */}
-        <div className="flex flex-col gap-4 border-b border-zinc-200/70 dark:border-zinc-800 px-6 py-4 md:flex-row md:items-center md:justify-between">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between border-b px-6 py-4">
           <div>
-            <h1 className="text-lg font-semibold text-zinc-900 dark:text-zinc-50">
-              لیست محصولات
-            </h1>
-            <p className="text-sm text-zinc-500 mt-1">
-              مدیریت، جستجو و ویرایش محصولات فروشگاه
-            </p>
+            <h1 className="text-lg font-semibold text-zinc-900">لیست محصولات</h1>
+            <p className="text-sm text-zinc-500 mt-1">مدیریت محصولات فروشگاه</p>
           </div>
 
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-            <div className="relative">
-              <input
-                type="text"
-                placeholder="جستجو بر اساس نام محصول..."
-                className="w-full sm:w-64 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-900 px-3 py-2 text-sm text-zinc-800 dark:text-zinc-100 placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/70 focus:border-transparent"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-              />
-              <span className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-zinc-400 text-xs">
-                ⌕
-              </span>
-            </div>
+          <div className="flex gap-3 mt-4 md:mt-0">
 
+            {/* Search */}
+            <input
+              type="text"
+              placeholder="جستجو..."
+              className="border border-zinc-300 bg-zinc-50 px-3 py-2 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+
+            {/* Add Product Button */}
             <button
-              type="button"
-              onClick={onAddProduct}
-              className="inline-flex items-center justify-center gap-2 rounded-xl bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 active:bg-indigo-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-1 focus:ring-offset-white dark:focus:ring-offset-zinc-950"
+              onClick={() => setOpenModal(true)}
+              className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 text-sm"
             >
-              <span className="text-lg leading-none">＋</span>
-              <span>افزودن محصول</span>
+              افزودن محصول
             </button>
           </div>
         </div>
 
         {/* Table */}
-        <div className="overflow-x-auto">
-          <table className="min-w-full text-sm">
-            <thead>
-              <tr className="bg-zinc-50 dark:bg-zinc-900/60 border-b border-zinc-200/70 dark:border-zinc-800">
-                <th className="px-4 py-3 text-right font-medium text-zinc-500">
-                  نام محصول
-                </th>
-                <th className="px-4 py-3 text-right font-medium text-zinc-500">
-                  دسته‌بندی
-                </th>
-                <th className="px-4 py-3 text-right font-medium text-zinc-500">
-                  قیمت (دلار)
-                </th>
-                <th className="px-4 py-3 text-right font-medium text-zinc-500">
-                  موجودی
-                </th>
-                <th className="px-4 py-3 text-right font-medium text-zinc-500">
-                  وضعیت
-                </th>
-                <th className="px-4 py-3 text-right font-medium text-zinc-500">
-                  تاریخ ایجاد
-                </th>
-                <th className="px-4 py-3 text-center font-medium text-zinc-500">
-                  عملیات
-                </th>
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="bg-zinc-100 border-b">
+              <th className="px-4 py-3 text-right">نام محصول</th>
+              <th className="px-4 py-3 text-right">قیمت</th>
+              <th className="px-4 py-3 text-right">درباره محصول</th>
+              <th className="px-4 py-3 text-right">وضعیت</th>
+              <th className="px-4 py-3 text-right">تاریخ ایجاد</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            {filtered.map((p) => (
+              <tr key={p.id} className="border-b">
+                <td className="px-4 py-3 font-medium">{p.name}</td>
+                <td className="px-4 py-3">{p.price.toLocaleString("fa-IR")}</td>
+                <td className="px-4 py-3 text-zinc-600">{p.description}</td>
+                <td className="px-4 py-3">
+                  <span className={`px-3 py-1 rounded-full text-xs ${statusColors[p.status]}`}>
+                    {p.status === "active" ? "فعال" : "غیرفعال"}
+                  </span>
+                </td>
+                <td className="px-4 py-3">{p.createdAt}</td>
               </tr>
-            </thead>
-            <tbody>
-              {filtered.length === 0 && (
-                <tr>
-                  <td
-                    colSpan={7}
-                    className="px-4 py-8 text-center text-sm text-zinc-400"
-                  >
-                    محصولی مطابق جستجو پیدا نشد.
-                  </td>
-                </tr>
-              )}
-
-              {filtered.map((p, idx) => (
-                <tr
-                  key={p.id}
-                  className={`border-b border-zinc-100 dark:border-zinc-800 ${
-                    idx % 2 === 1
-                      ? "bg-zinc-50/60 dark:bg-zinc-900/40"
-                      : "bg-white dark:bg-zinc-900"
-                  }`}
-                >
-                  <td className="px-4 py-3 text-zinc-900 dark:text-zinc-50 font-medium">
-                    {p.name}
-                  </td>
-                  <td className="px-4 py-3 text-zinc-600 dark:text-zinc-300">
-                    {p.category}
-                  </td>
-                  <td className="px-4 py-3 text-zinc-700 dark:text-zinc-200">
-                    {p.price.toLocaleString("en-US")}
-                  </td>
-                  <td className="px-4 py-3 text-zinc-700 dark:text-zinc-200">
-                    {p.stock}
-                  </td>
-                  <td className="px-4 py-3">
-                    <span
-                      className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-medium ${statusColors[p.status]}`}
-                    >
-                      {p.status === "active"
-                        ? "فعال"
-                        : p.status === "inactive"
-                        ? "غیرفعال"
-                        : "پیش‌نویس"}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3 text-zinc-600 dark:text-zinc-300">
-                    {p.createdAt}
-                  </td>
-                  <td className="px-4 py-3">
-                    <div className="flex items-center justify-center gap-2">
-                      <button className="rounded-lg border border-zinc-200 dark:border-zinc-700 px-2 py-1 text-xs text-zinc-600 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800">
-                        ویرایش
-                      </button>
-                      <button className="rounded-lg border border-red-200 dark:border-red-800 px-2 py-1 text-xs text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30">
-                        حذف
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-
-        {/* Footer */}
-        <div className="flex items-center justify-between border-t border-zinc-200/70 dark:border-zinc-800 px-6 py-3 text-xs text-zinc-500">
-          <span>نمایش {filtered.length} محصول</span>
-          <div className="flex gap-2">
-            <button className="rounded-lg border border-zinc-200 dark:border-zinc-700 px-3 py-1 hover:bg-zinc-50 dark:hover:bg-zinc-800">
-              قبلی
-            </button>
-            <button className="rounded-lg border border-zinc-200 dark:border-zinc-700 px-3 py-1 hover:bg-zinc-50 dark:hover:bg-zinc-800">
-              بعدی
-            </button>
-          </div>
-        </div>
+            ))}
+          </tbody>
+        </table>
       </div>
+
+      {/* ================= Modal Add Product ================= */}
+     {/* مودال */}
+      <AddProductModal
+        open={openModal}
+        onClose={() => setOpenModal(false)}
+        onSubmit={handleAddProduct}
+      />
     </div>
-   
   );
- 
 }

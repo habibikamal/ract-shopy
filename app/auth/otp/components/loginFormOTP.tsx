@@ -2,7 +2,7 @@
 
 import { Formik, Form } from "formik";
 import * as yup from "yup";
-import Input from "@/app/shared/components/input";
+import Input from "@/app/shared/components/Input";
 import {InterfaceLoginFormOTPValues } from "@/app/contracts/auth/modelAuth";
 import callApi from "@/app/helpers/callApi";
 import ValidationErrors from "@/app/exceptions/validationErroe";
