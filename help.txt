@@ -21,3 +21,5 @@ npm install @heroicons/react
 
 npm i @material-tailwind/react
 https://www.material-tailwind.com/docs/react/mega-menu
+npm install sweetalert2
+
