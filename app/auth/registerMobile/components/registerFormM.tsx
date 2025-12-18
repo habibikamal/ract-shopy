@@ -32,7 +32,7 @@ export default function RegisterFormM() {
       onSubmit={async (values) => {
         console.log("Form Submitted:", values);
 
-        const res = await callApi().post("auth/register", values, {
+        const res = await callApi().post("/auth/register", values, {
           headers: {
             "Content-Type": "application/json",
             Accept: "application/json",
