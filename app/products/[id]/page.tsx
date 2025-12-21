@@ -1,7 +1,9 @@
+import { Metadata, ResolvingMetadata } from "next";
+
 interface Props {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 }
 
 interface Product {
@@ -21,28 +23,46 @@ async function getSingleProduct(id: string): Promise<Product> {
   );
 
   if (!res.ok) {
-    throw new Error("Failed to fetch product");
+    const { notFound } = await import("next/navigation");
+    notFound();
   }
 
   const data = await res.json();
-  console.log(data);
   return data.product;
 }
 
+/* ✅ نام درست + await params */
+export async function generateMetadata(
+  { params }: Props,
+  parent: ResolvingMetadata
+): Promise<Metadata> {
+  const resolvedParams = await params; // 👈 مهم
+  const product = await getSingleProduct(resolvedParams.id);
+
+  return {
+    title: product.title,
+    description: product.body.substring(0, 120),
+  };
+}
+
 export default async function ProductSingleProduct({ params }: Props) {
-  const product = await getSingleProduct(params.id);
+  const resolvedParams = await params;
+  const product = await getSingleProduct(resolvedParams.id);
 
   return (
-    <div className="max-w-2xl mx-auto mt-10 bg-white p-6 rounded-xl shadow" dir="rtl">
-      <h1 className="text-2xl font-bold mb-4">
+    <div
+      className="mx-auto mt-10 max-w-2xl rounded-xl bg-white p-6 shadow"
+      dir="rtl"
+    >
+      <h1 className="mb-4 text-2xl font-bold">
         {product.title}
       </h1>
 
-      <p className="text-gray-700 leading-7 mb-6">
+      <p className="mb-6 leading-7 text-gray-700">
         {product.body}
       </p>
 
-      <div className="flex justify-between text-sm text-gray-600 border-t pt-4">
+      <div className="flex justify-between border-t pt-4 text-sm text-gray-600">
         <span>
           قیمت: {product.price.toLocaleString("fa-IR")} تومان
         </span>
