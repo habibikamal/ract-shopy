@@ -1,4 +1,5 @@
 import { Metadata, ResolvingMetadata } from "next";
+import Image from "next/image";
 
 interface Props {
   params: Promise<{
@@ -54,6 +55,13 @@ export default async function ProductSingleProduct({ params }: Props) {
       className="mx-auto mt-10 max-w-2xl rounded-xl bg-white p-6 shadow"
       dir="rtl"
     >
+      <Image
+  src="/img/laptop.webp"
+  alt="تصویر لپ‌تاپ"
+  width={600}
+  height={400}
+  className="mb-4 rounded-lg object-cover"
+/>
       <h1 className="mb-4 text-2xl font-bold">
         {product.title}
       </h1>
